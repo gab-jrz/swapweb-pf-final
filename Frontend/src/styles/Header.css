@@ -2115,14 +2115,7 @@ body.dark-mode .app::-webkit-scrollbar {
 
 /* Barra horizontal de categorías debajo del header */
 .categories-bar-horizontal {
-  position: relative;
-  width: 100%;
-  background: rgba(255, 255, 255, 0.95);
-  border-bottom: 1px solid #e9ecef;
-  z-index: 5;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  margin-top: 0;
+
 }
 
 .btn-categories-horizontal {
@@ -2873,17 +2866,7 @@ body {
   50% { transform: scale(1.2) rotate(10deg); }
 }
 
-/* Barra horizontal de categorías */
-.categories-bar-horizontal {
-  position: relative;
-  width: 100%;
-  background: rgba(255, 255, 255, 0.95);
-  border-bottom: 1px solid #e9ecef;
-  z-index: 5;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  margin-top: 0;
-}
+
 
 .btn-categories-horizontal {
   background: linear-gradient(135deg, #7b2ff2 0%, #1e90ff 100%);
