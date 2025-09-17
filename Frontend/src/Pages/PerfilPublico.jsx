@@ -345,7 +345,7 @@ const PerfilPublico = () => {
                         </span>
                       </span>
                     </div>
-                    <span style={{ fontSize: 12, color: '#64748b' }}>{c.fecha ? new Date(c.fecha).toLocaleDateString() : '-'}</span>
+                    <span style={{ fontSize: 12, color: '#64748b' }}>{c.fecha ? (()=>{ const d=new Date(c.fecha); if(isNaN(d.getTime())) return '-'; const dd=String(d.getDate()).padStart(2,'0'); const mm=String(d.getMonth()+1).padStart(2,'0'); const yyyy=d.getFullYear(); return `${dd}/${mm}/${yyyy}`; })() : '-'}</span>
                   </div>
                   {(c.productoOfrecido || c.productoSolicitado) && (
                     <div style={{ marginTop: 6, fontSize: 13, color: '#334155' }}>

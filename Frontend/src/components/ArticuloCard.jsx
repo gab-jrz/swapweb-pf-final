@@ -23,6 +23,16 @@ const ArticuloCard = ({ producto, onEdit, onMarkAsExchanged }) => {
     : null;
   const imageSrc = primaryImage || producto.image || '/images/placeholder-product.jpg';
 
+  // Formatear fecha como DD/MM/YYYY
+  const formatDateDMY = (input) => {
+    const date = input instanceof Date ? input : new Date(input);
+    if (isNaN(date)) return '';
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const yyyy = date.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;
+  };
+
   return (
     <div className={`articulo-card-premium ${isExchanged ? 'exchanged' : ''}`}>
       <div className="articulo-img-wrap">
@@ -45,7 +55,7 @@ const ArticuloCard = ({ producto, onEdit, onMarkAsExchanged }) => {
         <p className="articulo-desc">{description}</p>
         <div className="articulo-meta-box">
           <div className="articulo-fecha-simple">
-            Publicado el: {fechaPublicacion ? new Date(fechaPublicacion).toLocaleDateString() : 'Sin fecha'}
+            Publicado el: {fechaPublicacion ? formatDateDMY(fechaPublicacion) : 'Sin fecha'}
           </div>
           <div className="articulo-provincia-simple">
             En: {provincia}

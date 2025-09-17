@@ -133,7 +133,7 @@ const Calificaciones = () => {
                           {[1, 2, 3, 4, 5].map(v => <Star key={v} filled={c.rating >= v} />)}
                         </span>
                       </td>
-                      <td>{c.fecha ? new Date(c.fecha).toLocaleDateString() : '-'}</td>
+                      <td>{c.fecha ? new Date(c.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '-'}</td>
                       <td>
                         {c.productoOfrecido && c.productoSolicitado ? (
                           <span className="intercambio-inline" title={`${c.productoOfrecido} ↔ ${c.productoSolicitado}`}>

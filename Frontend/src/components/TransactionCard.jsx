@@ -3,9 +3,9 @@ import '../styles/TransactionCard.css';
 
 const TransactionCard = ({ transaccion, currentUserId, onDelete, onRate, onRepublish, onConfirm, isDonation = false, deliveryDate = null }) => {
   // Debug: ver estructura de la transacción
-  console.log('🔍 Estructura de transacción:', transaccion);
-  console.log('🔍 Campos disponibles:', Object.keys(transaccion));
-  console.log('🔍 Valores de campos:', {
+  console.log(' Estructura de transacción:', transaccion);
+  console.log(' Campos disponibles:', Object.keys(transaccion));
+  console.log(' Valores de campos:', {
     userIdPropietario: transaccion.userIdPropietario,
     userIdSolicitante: transaccion.userIdSolicitante,
     nombrePropietario: transaccion.nombrePropietario,
@@ -111,7 +111,17 @@ const TransactionCard = ({ transaccion, currentUserId, onDelete, onRate, onRepub
   const fechaStr = isValidDate
     ? `${fecha.toLocaleDateString()} a las ${fecha.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
     : '';
-  
+
+  // Helper: fecha DD/MM/YYYY
+  const formatDateDMY = (d) => {
+    const date = d instanceof Date ? d : new Date(d);
+    if (isNaN(date)) return '';
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const yyyy = date.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;
+  };
+
   // Estado y confirmaciones
   const estado = transaccion.estado || (isDonation ? 'completado' : 'pendiente_confirmacion');
   const confirmedBy = Array.isArray(transaccion.confirmedBy) ? transaccion.confirmedBy.filter(Boolean) : [];
@@ -456,7 +466,7 @@ const TransactionCard = ({ transaccion, currentUserId, onDelete, onRate, onRepub
             color: '#666',
             fontWeight: 600
           }}>
-            {isValidDate ? (isDonation ? `Entregada el ${fechaStr}` : fechaStr) : ''}
+            {isValidDate ? (isDonation ? `Entregada el ${formatDateDMY(fecha)}` : formatDateDMY(fecha)) : ''}
           </span>
         </div>
       </div>

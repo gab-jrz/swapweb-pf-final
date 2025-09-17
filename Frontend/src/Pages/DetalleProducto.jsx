@@ -216,11 +216,11 @@ const DetalleProducto = () => {
   const formatDate = (dateString) => {
     if (!dateString) return 'Fecha no disponible';
     const date = new Date(dateString);
-    return date.toLocaleDateString('es-AR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    if (isNaN(date.getTime())) return 'Fecha no disponible';
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const yyyy = date.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;
   };
 
   const handleReport = () => {

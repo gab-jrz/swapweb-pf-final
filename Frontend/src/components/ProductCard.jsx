@@ -100,14 +100,14 @@ const ProductCard = ({
     return null;
   };
 
-  // Formatear fecha como DD-MM-YYYY
+  // Formatear fecha como DD/MM/YYYY
   const formatDateDMY = (input) => {
     const date = new Date(input);
-    if (isNaN(date)) return '';
+    if (isNaN(date.getTime())) return '';
     const dd = String(date.getDate()).padStart(2, '0');
     const mm = String(date.getMonth() + 1).padStart(2, '0');
     const yyyy = date.getFullYear();
-    return `${dd}-${mm}-${yyyy}`;
+    return `${dd}/${mm}/${yyyy}`;
   };
 
   // Eliminado: etiqueta "Nuevo"
