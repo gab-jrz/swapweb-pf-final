@@ -77,7 +77,32 @@
     margin-top: auto;
   }
   
-  /* Responsive grid y espaciados */
+  /* Sidebar de categorías en Home: pegado arriba y a la izquierda */
+.sidebar-categorias {
+  position: fixed;
+  top: 70px; /* Ajusta según la altura real del header */
+  left: 0;
+  width: 320px;
+  height: calc(100vh - 70px); /* Resta la altura del header */
+  background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
+  border-right: 1.5px solid #e0e7ff;
+  box-shadow: 0 8px 32px rgba(123,47,242,0.08);
+  z-index: 100;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+}
+@media (max-width: 900px) {
+  .sidebar-categorias {
+    width: 100vw;
+    left: 0;
+    top: 60px;
+    height: calc(100vh - 60px);
+    border-radius: 0 0 18px 18px;
+  }
+}
+
+/* Responsive grid y espaciados */
   @media (max-width: 1200px) {
     .product-list {
       grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3 columnas en pantallas medianas grandes */
