@@ -223,8 +223,8 @@ const RequestCreateNew = () => {
     );
   };
 
-  return (
-    <div className="perfil-usuario-container">
+  return ( <>
+  <div className="perfil-usuario-container">
       <Header search={false} />
 
       <div className="regresar-container-premium">
@@ -602,8 +602,10 @@ const RequestCreateNew = () => {
         isLoading={isLoading}
       />
 
-      <Footer />
+   
     </div>
+    <Footer />
+    </>
   );
 };
 

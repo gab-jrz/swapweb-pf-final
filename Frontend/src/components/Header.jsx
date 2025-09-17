@@ -820,18 +820,6 @@ const Header = ({
                         className="dropdown-item user-menu-item"
                         onClick={() => {
                           navigate(`/perfil`, {
-                            state: { activeTab: "favoritos" },
-                          });
-                          setMenuOpen(false);
-                        }}
-                      >
-                        <FaHeart className="menu-icon" />
-                        Favoritos
-                      </button>
-                      <button
-                        className="dropdown-item user-menu-item"
-                        onClick={() => {
-                          navigate(`/perfil`, {
                             state: { activeTab: "donaciones" },
                           });
                           setMenuOpen(false);

@@ -703,6 +703,7 @@ const Home = () => {
             {productosParaMostrar.length > 0 ? (
               productosParaMostrar.map((producto) => (
                 <ProductCard
+                  hideFavoriteButton={true}
                   key={producto.id}
                   id={producto.id}
                   title={producto.title}

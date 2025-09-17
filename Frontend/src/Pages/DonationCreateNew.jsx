@@ -300,8 +300,8 @@ const DonationCreateNew = () => {
     initDarkModeDetector();
   }, []);
 
-  return (
-    <div className="perfil-usuario-container donation-light">
+  return ( <>
+  <div className="perfil-usuario-container donation-light">
       <Header search={false} />
 
       <div className="publicar-producto-container" data-theme="dark">
@@ -560,8 +560,11 @@ const DonationCreateNew = () => {
         message="Tu donación ya está visible para la comunidad."
       />
 
-      <Footer />
+      
     </div>
+    <Footer />
+  </>
+    
   );
 };
 
