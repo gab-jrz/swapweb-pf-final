@@ -17,28 +17,31 @@
   /* Contenedor de las tarjetas de productos */
   .product-list {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr)); /* 4 columnas desktop */
-    gap: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Grid responsivo, mínimo 300px */
+    gap: 32px; /* Espaciado generoso entre tarjetas */
     justify-content: center;
-    align-items: stretch; /* Evita recortes de altura en cards */
+    align-items: stretch;
     padding-left: 8px;
     padding-right: 8px;
     box-sizing: border-box;
+    width: 100%;
+    margin: 0 auto;
   }
   
   /* Estilos de la tarjeta de producto */
   .product-card {
     background-color: #f9f9f9;
-    padding: 50px;
-    border-radius: 8px;
-    box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
+    padding: 32px 24px;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
     transition: transform 0.3s ease;
-    max-width: 100%; /* Evita que se salga del grid */
-    min-width: 0; /* Permite que el grid controle el ancho */
+    max-width: 100%;
+    min-width: 0;
+    margin: 0;
   }
   
   .product-card:hover {
-    transform: translateY(-10px);
+    transform: translateY(-8px) scale(1.02);
   }
   
   /* Botones "Mostrar más" y "Mostrar menos" */
@@ -86,12 +89,17 @@
       padding: 18px 0; /* Reducir padding vertical en tablet */
     }
     .product-list {
-      grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 columnas en tablet */
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 18px;
+      padding: 0;
     }
     button {
       width: 200px;
       font-size: 15px;
+    }
+    .product-card {
+      padding: 20px 10px;
+      border-radius: 10px;
     }
     /* Ajustes suaves para secciones superiores */
     .search-section-moved {
@@ -105,8 +113,9 @@
       padding: 14px 0; /* Compacto en mobile */
     }
     .product-list {
-      grid-template-columns: 1fr; /* 1 columna en mobile */
+      grid-template-columns: 1fr;
       gap: 14px;
+      padding: 0;
     }
     button {
       width: 100%; /* Botones full-width en mobile */
@@ -124,8 +133,10 @@
       margin: 12px 0 !important;
     }
     .product-card {
-      margin-bottom: 12px; /* Espacio compacto entre cards en mobile */
+      margin-bottom: 12px;
       max-width: 100%;
+      padding: 14px 6px;
+      border-radius: 8px;
     }
   }
   
