@@ -378,8 +378,9 @@ const PublicarProducto = () => {
     return () => clearTimeout(t);
   }, [location.hash]);
 
-  return (
-    <div className="perfil-usuario-container">
+  return ( <>
+
+  <div className="perfil-usuario-container">
       <Header search={false} />
 
       <div className="publicar-header">
@@ -563,8 +564,12 @@ const PublicarProducto = () => {
         message="Tu producto ya está visible para la comunidad."
       />
 
-      <Footer />
+      
     </div>
+
+    <Footer />
+  </>
+    
   );
 };
 

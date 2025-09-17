@@ -354,8 +354,8 @@ const EditarDonacion = () => {
     );
   }
 
-  return (
-    <div className="editar-producto-container">
+  return ( <>
+  <div className="editar-producto-container">
       <Header />
       {notification.show && (
         <div className={`notification ${notification.type}`}>
@@ -732,8 +732,11 @@ const EditarDonacion = () => {
           </div>
         </div>
       )}
-      <Footer />
+     
     </div>
+     <Footer />
+  </>
+    
   );
 };
 

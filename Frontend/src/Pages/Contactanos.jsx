@@ -99,8 +99,8 @@ export default function Contactanos() {
     }
   };
 
-  return (
-    <div className="perfil-usuario-container">
+  return ( <>
+  <div className="perfil-usuario-container">
       <Header search={false} />
       <main id="top" className="container py-5" style={{ minHeight: "60vh", scrollMarginTop: "120px" }}>
         <section className="mb-4 text-center">
@@ -143,7 +143,10 @@ export default function Contactanos() {
           </div>
         </section>
       </main>
-      <Footer />
+     
     </div>
+     <Footer />
+    </>
+    
   );
 }
