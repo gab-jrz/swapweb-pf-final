@@ -19,7 +19,8 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 32px; /* Espaciado equilibrado */
-    justify-items: center; /* Centra cada tarjeta en su celda */
+    justify-content: center; /* Centra el grupo de tarjetas */
+    justify-items: start; /* Las tarjetas alineadas al inicio de cada celda */
     align-items: stretch;
     padding-left: 16px;
     padding-right: 16px;
@@ -36,8 +37,8 @@
     border-radius: 12px;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
     transition: transform 0.3s ease;
+    width: 320px;
     max-width: 100%;
-    min-width: 0;
     margin: 0;
     margin-bottom: 24px; /* Aumenta separación vertical entre tarjetas */
   }
@@ -110,64 +111,27 @@
       gap: 24px;
       max-width: 900px;
     }
-  }
-
-  @media (max-width: 900px) {
-    main {
-      padding: 18px 0; /* Reducir padding vertical en tablet */
+    .product-card, .articulo-card-premium {
+      width: 100%;
     }
+  }
+  @media (max-width: 900px) {
     .product-list {
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 16px;
       max-width: 100vw;
       padding: 0;
     }
-    button {
-      width: 200px;
-      font-size: 15px;
-    }
-    .product-card {
-      padding: 20px 10px;
-      border-radius: 10px;
-      margin-bottom: 16px;
-    }
-    /* Ajustes suaves para secciones superiores */
-    .search-section-moved {
-      padding: 16px !important;
-      margin: 16px 0 !important;
+    .product-card, .articulo-card-premium {
+      width: 100%;
     }
   }
-
   @media (max-width: 600px) {
-    main {
-      padding: 14px 0; /* Compacto en mobile */
-    }
     .product-list {
       grid-template-columns: 1fr;
       gap: 12px;
       padding: 0;
       max-width: 100vw;
-    }
-    button {
-      width: 100%; /* Botones full-width en mobile */
-      font-size: 14px;
-    }
-    .results-info p {
-      font-size: 0.9rem;
-    }
-    .d-flex {
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .search-section-moved {
-      padding: 12px !important;
-      margin: 12px 0 !important;
-    }
-    .product-card {
-      margin-bottom: 12px;
-      max-width: 100%;
-      padding: 14px 6px;
-      border-radius: 8px;
     }
   }
   
