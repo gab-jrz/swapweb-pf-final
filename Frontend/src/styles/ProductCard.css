@@ -1,3 +1,11 @@
+/* GLOBAL: Forzar box-sizing para todo el proyecto */
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
 .product-card-premium {
   background: #ffffff;
   border-radius: 1rem;
@@ -6,10 +14,9 @@
   display: flex;
   flex-direction: column;
   position: relative;
-  width: 300px; /* Ancho base para desktop */
-  /* Evitar altura fija grande que deja espacios vacíos */
-  min-height: 420px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  width: 100%; /* Usar 100% para que el grid controle el ancho */
+  max-width: 320px; /* Limitar el ancho máximo para desktop */
+  min-width: 240px; /* Limitar el ancho mínimo para responsive */
   margin: 0.5rem auto;
   border: 1px solid #e0e0e0;
   overflow: hidden;
@@ -673,7 +680,28 @@ body.dark-mode .favorite-btn.favorite-active:hover {
 /* Monitores grandes (>1280px) */
 @media (min-width: 1281px) {
   .product-card-premium {
-    width: 300px; /* mantener diseño premium */
+    max-width: 320px;
+    width: 100%;
+  }
+}
+@media (max-width: 1200px) {
+  .product-card-premium {
+    max-width: 320px;
+    width: 100%;
+  }
+}
+@media (max-width: 900px) {
+  .product-card-premium {
+    max-width: 100vw;
+    min-width: 240px;
+    width: 100%;
+  }
+}
+@media (max-width: 600px) {
+  .product-card-premium {
+    max-width: 98vw;
+    min-width: 90vw;
+    width: 100%;
   }
 }
 
