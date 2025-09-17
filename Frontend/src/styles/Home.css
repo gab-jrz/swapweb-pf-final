@@ -17,12 +17,12 @@
   /* Contenedor de las tarjetas de productos */
   .product-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 400px)); /* Máximo 400px por tarjeta */
-    gap: 32px;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Aumenta el min-width para evitar solapamiento */
+    gap: 40px; /* Aumenta el gap para más separación */
     justify-content: center; /* Centra las tarjetas si hay pocas */
     align-items: stretch;
-    padding-left: 8px;
-    padding-right: 8px;
+    padding-left: 16px;
+    padding-right: 16px;
     box-sizing: border-box;
     width: 100%;
     max-width: 1600px; /* Limita el ancho en pantallas grandes */
@@ -39,6 +39,7 @@
     max-width: 100%;
     min-width: 0;
     margin: 0;
+    margin-bottom: 24px; /* Aumenta separación vertical entre tarjetas */
   }
   
   .product-card:hover {
@@ -105,8 +106,8 @@
 /* Responsive grid y espaciados */
   @media (max-width: 1200px) {
     .product-list {
-      grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3 columnas en pantallas medianas grandes */
-      gap: 22px;
+      grid-template-columns: repeat(2, minmax(320px, 1fr)); /* 2 columnas en pantallas medianas */
+      gap: 28px;
     }
   }
 
@@ -126,6 +127,7 @@
     .product-card {
       padding: 20px 10px;
       border-radius: 10px;
+      margin-bottom: 16px;
     }
     /* Ajustes suaves para secciones superiores */
     .search-section-moved {
