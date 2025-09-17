@@ -1,3 +1,11 @@
+/* GLOBAL: Forzar box-sizing para todo el proyecto */
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
 /* Contenedor principal */
 .home-container {
     display: flex;
@@ -110,6 +118,8 @@
       grid-template-columns: repeat(2, minmax(320px, 1fr)); /* 2 columnas en pantallas medianas */
       gap: 24px;
       max-width: 900px;
+      width: 100%;
+      box-sizing: border-box;
     }
     .product-card, .articulo-card-premium {
       width: 100%;
@@ -120,6 +130,8 @@
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 16px;
       max-width: 100vw;
+      width: 100%;
+      box-sizing: border-box;
       padding: 0;
     }
     .product-card, .articulo-card-premium {
@@ -132,6 +144,8 @@
       gap: 12px;
       padding: 0;
       max-width: 100vw;
+      width: 100%;
+      box-sizing: border-box;
     }
   }
   
