@@ -15,7 +15,6 @@ const Editar = lazy(() => import('./Pages/Editar'));
 const Configuracion = lazy(() => import('./Pages/Configuracion'));
 const PublicarProducto = lazy(() => import('./Pages/PublicarProducto'));
 const EditarProducto = lazy(() => import('./Pages/EditarProducto'));
-const Favoritos = lazy(() => import('./Pages/Favoritos'));
 const ForgotPassword = lazy(() => import('./Pages/ForgotPassword'));
 const ResetPassword = lazy(() => import('./Pages/ResetPassword'));
 const ComoFunciona = lazy(() => import('./Pages/ComoFunciona'));
@@ -65,8 +64,6 @@ function App() {
           </ProtectedRoute>
         } />
 
-        {/* Favoritos */}
-        <Route path="/favoritos" element={<Favoritos />} />
 
         {/* Rutas Donaciones y Solicitudes */}
         <Route path="/donaciones" element={<DonationsList />} />
