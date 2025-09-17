@@ -353,7 +353,49 @@ body, .perfil-usuario-container {
   40% { transform: translateY(-3px); opacity: 1; }
 }
 
+/* === Swapweb Minimal Aesthetic Overrides (Chat Bubbles) === */
+.chat-sender {
+  color: #64748b !important;
+  background: transparent !important;
+  text-shadow: none !important;
+  padding: 0 !important;
+}
 
+.chat-bubble {
+  padding: 10px 14px !important;
+  border-radius: 16px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+}
+
+.chat-bubble.other {
+  background: #f1f5f9 !important; /* slate-100 */
+  color: #0f172a !important;      /* slate-900 */
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+}
+.chat-bubble.other::before,
+.chat-bubble.me::before { display: none !important; }
+
+.chat-bubble.me {
+  background: #ffffff !important;
+  color: #1f2937 !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+}
+
+.chat-bubble:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+}
+
+.chat-profile-image {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+  border: 1px solid #e5e7eb !important;
+}
+.chat-profile-image:hover {
+  transform: none !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+}
 
 /* Responsive design */
 /* Teléfonos muy pequeños (<360px) */

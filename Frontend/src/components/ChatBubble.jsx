@@ -51,66 +51,83 @@ const ChatBubble = ({
   const [menuPos, setMenuPos] = useState({ x: 0, y: 0, visible: false });
   const menuRef = useRef(null);
   
+
+  // Contenedor dedicado para portal del menú contextual (evita conflictos con document.body)
+const portalContainerRef = useRef(null);
+
+useEffect(() => {
+  const el = document.createElement('div');
+  el.setAttribute('data-portal', 'chatbubble-menu');
+  portalContainerRef.current = el;
+  document.body.appendChild(el);
+
+  return () => {
+    // Remover el contenedor si aún está montado
+    if (portalContainerRef.current && portalContainerRef.current.parentNode) {
+      portalContainerRef.current.parentNode.removeChild(portalContainerRef.current);
+    }
+  };
+}, []);
   // Efecto para configurar los listeners de socket
-  useEffect(() => {
-    if (!socket) return;
-    
-    const handleNewMessage = (newMessage) => {
-      if (newMessage.sender !== currentUserId) {
-        showNotification(`Nuevo mensaje de ${newMessage.senderName}`, 'info');
-      }
-      if (onRefresh) onRefresh();
-    };
+useEffect(() => {
+  if (!socket) return;
 
-  // Cerrar menú contextual en click afuera, Escape, scroll o resize
-  useEffect(() => {
-    if (!(showMenu && menuPos.visible)) return;
+  const handleNewMessage = (newMessage) => {
+    if (newMessage.sender !== currentUserId) {
+      showNotification(`Nuevo mensaje de ${newMessage.senderName}`, 'info');
+    }
+    if (onRefresh) onRefresh();
+  };
 
-    const handleClick = (e) => {
-      // Si el click no es dentro del menú, cerrar
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setShowMenu(false);
-        setMenuPos((p) => ({ ...p, visible: false }));
-      }
-    };
-    const handleKey = (e) => {
-      if (e.key === 'Escape') {
-        setShowMenu(false);
-        setMenuPos((p) => ({ ...p, visible: false }));
-      }
-    };
-    const handleScrollOrResize = () => {
+  const handleExchangeConfirmed = (data) => {
+    if (data.userId === currentUserId) {
+      showNotification('¡Intercambio confirmado!', 'success');
+    }
+  };
+
+  socket.on('newMessage', handleNewMessage);
+  socket.on('exchangeConfirmed', handleExchangeConfirmed);
+
+  return () => {
+    socket.off('newMessage', handleNewMessage);
+    socket.off('exchangeConfirmed', handleExchangeConfirmed);
+  };
+}, [socket, currentUserId, onRefresh]);
+
+// Cerrar menú contextual en click afuera, Escape, scroll o resize
+useEffect(() => {
+  if (!(showMenu && menuPos.visible)) return;
+
+  const handleClick = (e) => {
+    // Si el click no es dentro del menú, cerrar
+    if (menuRef.current && !menuRef.current.contains(e.target)) {
       setShowMenu(false);
       setMenuPos((p) => ({ ...p, visible: false }));
-    };
+    }
+  };
+  const handleKey = (e) => {
+    if (e.key === 'Escape') {
+      setShowMenu(false);
+      setMenuPos((p) => ({ ...p, visible: false }));
+    }
+  };
+  const handleScrollOrResize = () => {
+    setShowMenu(false);
+    setMenuPos((p) => ({ ...p, visible: false }));
+  };
 
-    document.addEventListener('mousedown', handleClick, true);
-    window.addEventListener('keydown', handleKey, true);
-    window.addEventListener('scroll', handleScrollOrResize, true);
-    window.addEventListener('resize', handleScrollOrResize, true);
+  document.addEventListener('mousedown', handleClick, true);
+  window.addEventListener('keydown', handleKey, true);
+  window.addEventListener('scroll', handleScrollOrResize, true);
+  window.addEventListener('resize', handleScrollOrResize, true);
 
-    return () => {
-      document.removeEventListener('mousedown', handleClick, true);
-      window.removeEventListener('keydown', handleKey, true);
-      window.removeEventListener('scroll', handleScrollOrResize, true);
-      window.removeEventListener('resize', handleScrollOrResize, true);
-    };
-  }, [showMenu, menuPos.visible]);
-    
-    const handleExchangeConfirmed = (data) => {
-      if (data.userId === currentUserId) {
-        showNotification('¡Intercambio confirmado!', 'success');
-      }
-    };
-    
-    socket.on('newMessage', handleNewMessage);
-    socket.on('exchangeConfirmed', handleExchangeConfirmed);
-    
-    return () => {
-      socket.off('newMessage', handleNewMessage);
-      socket.off('exchangeConfirmed', handleExchangeConfirmed);
-    };
-  }, [socket, currentUserId, onRefresh]);
+  return () => {
+    document.removeEventListener('mousedown', handleClick, true);
+    window.removeEventListener('keydown', handleKey, true);
+    window.removeEventListener('scroll', handleScrollOrResize, true);
+    window.removeEventListener('resize', handleScrollOrResize, true);
+  };
+}, [showMenu, menuPos.visible]);
   
   const showNotification = (message, type) => {
     const id = Date.now();
@@ -820,42 +837,45 @@ const ChatBubble = ({
 
         {/* Fecha */}
         <div style={{ display: 'flex', alignItems: 'center', width: '100%', marginTop: 4, justifyContent: 'space-between' }}>
-        {shouldShowRateButton && (
-  <button
-    onClick={() => setShowRatingModal(true)}
-    style={{
-      marginLeft: 8,
-      background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
-      color: '#fff',
-      border: 'none',
-      borderRadius: 9999,
-      padding: '6px 12px',
-      fontSize: 12,
-      fontWeight: 800,
-      cursor: 'pointer',
-      boxShadow: '0 6px 16px rgba(34,197,94,0.25)',
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 8,
-      letterSpacing: 0.2,
-      transform: 'translateZ(0)',
-      transition: 'transform 120ms ease, box-shadow 120ms ease',
-    }}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.transform = 'translateY(-1px)';
-      e.currentTarget.style.boxShadow = '0 10px 20px rgba(34,197,94,0.3)';
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.transform = 'translateY(0)';
-      e.currentTarget.style.boxShadow = '0 6px 16px rgba(34,197,94,0.25)';
-    }}
-    aria-label={`Calificar a ${receptorNombre}`}
-    title={`Calificar a ${receptorNombre}`}
-  >
-    <span style={{ filter: 'drop-shadow(0 1px 0 rgba(0,0,0,0.15))' }}>⭐</span>
-    <span>Calificar</span>
-  </button>
-)}
+          <span className="chat-meta" style={{ fontSize: 12, color: fromMe ? '#008ba3' : '#444', fontWeight: 500, letterSpacing: 0.1, background:'#fff', borderRadius:5, padding:'1px 8px', boxShadow:'0 1px 6px #0001' }}>
+            {new Date(mensaje.fecha || mensaje.createdAt || Date.now()).toLocaleString()}
+          </span>
+          {shouldShowRateButton && (
+            <button
+              onClick={() => setShowRatingModal(true)}
+              style={{
+                marginLeft: 8,
+                background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 9999,
+                padding: '6px 12px',
+                fontSize: 12,
+                fontWeight: 800,
+                cursor: 'pointer',
+                boxShadow: '0 6px 16px rgba(34,197,94,0.25)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                letterSpacing: 0.2,
+                transform: 'translateZ(0)',
+                transition: 'transform 120ms ease, box-shadow 120ms ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = '0 10px 20px rgba(34,197,94,0.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 6px 16px rgba(34,197,94,0.25)';
+              }}
+              aria-label={`Calificar a ${receptorNombre}`}
+              title={`Calificar a ${receptorNombre}`}
+            >
+              <span style={{ filter: 'drop-shadow(0 1px 0 rgba(0,0,0,0.15))' }}>⭐</span>
+              <span>Calificar</span>
+            </button>
+          )}
         </div>
 
         </div>
@@ -991,7 +1011,7 @@ const ChatBubble = ({
            </div>
          </div>
        ),
-       document.body
+       portalContainerRef.current
      )}
 
       {/* Modal de calificación */}

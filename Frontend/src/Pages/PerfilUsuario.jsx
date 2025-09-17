@@ -4695,7 +4695,7 @@ const PerfilUsuario = () => {
 
                     {/* Portal global del menú contextual de la lista de chats */}
                     {chatListMenu.visible &&
-                      ReactDOM.createPortal(
+                      eatePortal(
                         <div
                           ref={chatListMenuRef}
                           style={{
