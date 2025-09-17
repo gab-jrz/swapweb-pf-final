@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import '../styles/ChatBubble.css';
 import Notification from './Notification';
 import { API_URL } from '../config';
+import RatingModal from './RatingModal';
 
 // API_URL centralizado desde config.js
 
@@ -124,6 +125,9 @@ const ChatBubble = ({
     setNotifications(prev => prev.filter(n => n.id !== id));
   };
   const [localRating, setLocalRating] = React.useState(null);
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [ratingSubmitting, setRatingSubmitting] = useState(false);
+  const [showFooterCTA, setShowFooterCTA] = useState(false);
 
   // Título del producto (sin imagen) derivado para cualquier mensaje
   const productTitleText = React.useMemo(() => {
@@ -261,20 +265,64 @@ const ChatBubble = ({
     }
   };
 
-  const handleRate = async (value) => {
-    setLocalRating(value);
+  const receptorId = React.useMemo(() => {
+    // Receptor de la calificación (el "otro" del intercambio)
+    return mensaje.deId === currentUserId ? mensaje.paraId : mensaje.deId;
+  }, [mensaje?.deId, mensaje?.paraId, currentUserId]);
+
+  const receptorNombre = React.useMemo(() => {
+    const nombreOtro = fromMe
+      ? (mensaje.paraNombre || mensaje.para || 'Usuario')
+      : (mensaje.deNombre || mensaje.de || 'Usuario');
+    return nombreOtro;
+  }, [fromMe, mensaje?.paraNombre, mensaje?.para, mensaje?.deNombre, mensaje?.de]);
+
+  // Flag de intercambio completado: true solo si este mensaje es el de confirmación final
+  const exchangeCompletedFlag = React.useMemo(() => {
+    const desc = (mensaje?.descripcion || '').toLowerCase().trim();
+    // Solo mostrar en el mensaje específico de cierre
+    return desc.includes('producto intercambiado entre usuarios');
+  }, [mensaje?.descripcion]);
+
+  const shouldShowRateButton = React.useMemo(() => {
+    // Mostrar botón solo en el mensaje de cierre de intercambio
+    // del OTRO usuario (voy a calificar a esa persona) y si aún no hay rating
+    const isFromOtherUser = !fromMe;
+    const isParticipant = (mensaje?.deId === currentUserId) || (mensaje?.paraId === currentUserId);
+    const notRated = (typeof mensaje?.rating !== 'number' || mensaje?.rating <= 0);
+    return exchangeCompletedFlag && isFromOtherUser && isParticipant && notRated;
+  }, [exchangeCompletedFlag, fromMe, mensaje?.rating, mensaje?.deId, mensaje?.paraId, currentUserId]);
+
+  const showBottomCTA = false;
+
+  const submitRatingWithComment = async ({ stars, comment }) => {
+    if (!mensaje?._id) return;
     try {
+      setRatingSubmitting(true);
+      // 1) Guardar rating en mensaje y en usuario receptor (acepta comentario)
       const res = await fetch(`${API_URL}/messages/${mensaje._id}/rating`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rating: value, raterId: currentUserId }),
+        body: JSON.stringify({ rating: stars, raterId: currentUserId, comentario: comment, comment })
       });
-      if (res.ok) {
-        mensaje.rating = value;
-        if (onRefresh) onRefresh();
-      }
-    } catch (err) {
-      console.error('Error enviando rating', err);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      // 2) Actualizar UI local
+      setLocalRating(stars);
+      mensaje.rating = stars;
+      showNotification('¡Gracias por tu calificación!', 'success');
+      // Avisar a otras vistas (perfil/calificaciones) para refrescar
+      try {
+        window.dispatchEvent(new CustomEvent('calificacion:nueva', { detail: { userId: receptorId } }));
+      } catch {}
+      if (onRefresh) onRefresh();
+      setShowRatingModal(false);
+    } catch (e) {
+      console.error('Error enviando calificación:', e);
+      showNotification('No se pudo enviar la calificación', 'error');
+      throw e;
+    } finally {
+      setRatingSubmitting(false);
     }
   };
 
@@ -381,7 +429,7 @@ const ChatBubble = ({
         alignItems: 'flex-start',
         marginBottom: 12,
         gap: 8,
-      }}
+      }} 
     >
       {/* Foto de perfil del remitente */}
       <div
@@ -425,6 +473,7 @@ const ChatBubble = ({
               navigate(`/perfil/${targetProfileId}`, { state: { fromChat: true } });
             }
           }}
+        
         >
           {displayName}
         </span>
@@ -463,6 +512,7 @@ const ChatBubble = ({
             if (typeof raw === 'string') {
               src = raw;
             }
+        
             return (
               <img
                 src={src}
@@ -770,68 +820,191 @@ const ChatBubble = ({
 
         {/* Fecha */}
         <div style={{ display: 'flex', alignItems: 'center', width: '100%', marginTop: 4, justifyContent: 'space-between' }}>
-          <span className="chat-meta" style={{ fontSize: 12, color: fromMe ? '#008ba3' : '#444', fontWeight: 500, letterSpacing: 0.1, background:'#fff', borderRadius:5, padding:'1px 8px', boxShadow:'0 1px 6px #0001' }}>{new Date(mensaje.fecha).toLocaleString()}</span>
+        {shouldShowRateButton && (
+  <button
+    onClick={() => setShowRatingModal(true)}
+    style={{
+      marginLeft: 8,
+      background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+      color: '#fff',
+      border: 'none',
+      borderRadius: 9999,
+      padding: '6px 12px',
+      fontSize: 12,
+      fontWeight: 800,
+      cursor: 'pointer',
+      boxShadow: '0 6px 16px rgba(34,197,94,0.25)',
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 8,
+      letterSpacing: 0.2,
+      transform: 'translateZ(0)',
+      transition: 'transform 120ms ease, box-shadow 120ms ease',
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.transform = 'translateY(-1px)';
+      e.currentTarget.style.boxShadow = '0 10px 20px rgba(34,197,94,0.3)';
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.transform = 'translateY(0)';
+      e.currentTarget.style.boxShadow = '0 6px 16px rgba(34,197,94,0.25)';
+    }}
+    aria-label={`Calificar a ${receptorNombre}`}
+    title={`Calificar a ${receptorNombre}`}
+  >
+    <span style={{ filter: 'drop-shadow(0 1px 0 rgba(0,0,0,0.15))' }}>⭐</span>
+    <span>Calificar</span>
+  </button>
+)}
         </div>
-
-        {/* Menú contextual global para mensajes propios */}
-        {showMenu && fromMe && menuPos.visible && ReactDOM.createPortal((() => {
-          const menuWidth = 200;
-          const menuHeight = 100;
-          const padding = 8;
-          let left = menuPos.x;
-          let top = menuPos.y;
-          if (left + menuWidth + padding > window.innerWidth) left = Math.max(8, window.innerWidth - menuWidth - padding);
-          if (top + menuHeight + padding > window.innerHeight) top = Math.max(8, window.innerHeight - menuHeight - padding);
-
-          return (
-            <div
-              style={{
-                position: 'fixed',
-                top,
-                left,
-                zIndex: 9999,
-                minWidth: menuWidth,
-                background: '#fff',
-                border: '1px solid #eee',
-                borderRadius: 10,
-                boxShadow: '0 6px 20px rgba(0,0,0,0.12)',
-                overflow: 'hidden',
-                display: 'flex',
-                flexDirection: 'column',
-                padding: 0
-              }}
-              role="menu"
-              ref={menuRef}
-            >
-              <div
-                style={{ padding:'13px 22px', cursor:'pointer', color:'#1976d2', fontWeight:600, fontSize:15 }}
-                onClick={() => {
-                  onRefresh && onRefresh('edit', mensaje._id || mensaje.id);
-                  setShowMenu(false);
-                  setMenuPos(p => ({ ...p, visible: false }));
-                }}
-              >
-                Editar mensaje
-              </div>
-              <div style={{height:1,background:'#eee',margin:'0 12px'}}/>
-              <div
-                style={{ padding:'13px 22px', cursor:'pointer', color:'#dc3545', fontWeight:600, fontSize:15 }}
-                onClick={async () => {
-                  setShowMenu(false);
-                  setMenuPos(p => ({ ...p, visible: false }));
-                  await handleDelete();
-                }}
-              >
-                Eliminar mensaje
-              </div>
-            </div>
-          );
-        })(), document.body)}
 
         </div>
       </div>
+
+
+     {/* Portal del menú contextual */}
+     {showMenu && fromMe && menuPos.visible && ReactDOM.createPortal((() => {
+       const menuWidth = 200;
+       const menuHeight = 100;
+       const padding = 8;
+       let left = menuPos.x;
+       let top = menuPos.y;
+       if (left + menuWidth + padding > window.innerWidth) {
+         left = Math.max(8, window.innerWidth - menuWidth - padding);
+       }
+       if (top + menuHeight + padding > window.innerHeight) {
+         top = Math.max(8, window.innerHeight - menuHeight - padding);
+       }
+
+       return (
+         <div
+           style={{
+             position: 'fixed',
+             top,
+             left,
+             zIndex: 9999,
+             minWidth: menuWidth,
+             background: '#fff',
+             border: '1px solid #eee',
+             borderRadius: 10,
+             boxShadow: '0 6px 20px rgba(0,0,0,0.12)',
+             overflow: 'hidden',
+             display: 'flex',
+             flexDirection: 'column',
+             padding: 0
+           }}
+           role="menu"
+           ref={menuRef}
+         >
+           <div
+             style={{ padding:'13px 22px', cursor:'pointer', color:'#1976d2', fontWeight:600, fontSize:15 }}
+             onClick={() => {
+               onRefresh && onRefresh('edit', mensaje._id || mensaje.id);
+               setShowMenu(false);
+               setMenuPos(p => ({ ...p, visible: false }));
+             }}
+           >
+             Editar mensaje
+           </div>
+           <div style={{height:1, background:'#eee', margin:'0 12px'}}/>
+           <div
+             style={{ padding:'13px 22px', cursor:'pointer', color:'#dc3545', fontWeight:600, fontSize:15 }}
+             onClick={async () => {
+               setShowMenu(false);
+               setMenuPos(p => ({ ...p, visible: false }));
+               await handleDelete();
+             }}
+           >
+             Eliminar mensaje
+           </div>
+         </div>
+       );
+     })(), document.body)}
+
+     {/* CTA inferior para calificar ahora */}
+     {showBottomCTA && ReactDOM.createPortal(
+       (
+         <div
+           style={{
+             position: 'fixed',
+             left: 0,
+             right: 0,
+             bottom: 12,
+             display: 'flex',
+             justifyContent: 'center',
+             zIndex: 9998
+           }}
+         >
+           <div
+             style={{
+               display: 'flex',
+               alignItems: 'center',
+               gap: 12,
+               background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
+               border: '1px solid #e2e8f0',
+               borderRadius: 9999,
+               padding: '8px 14px',
+               boxShadow: '0 10px 30px rgba(0,0,0,0.12)',
+               maxWidth: 620,
+             }}
+           >
+             <span style={{ fontWeight: 800, color: '#0f172a', letterSpacing: 0.2 }}>
+               ⭐ Calificar ahora
+             </span>
+             <span style={{ color: '#334155', fontSize: 13 }}>
+               ¿Cómo fue tu intercambio con <strong>{receptorNombre}</strong>?
+             </span>
+             <div style={{ flex: 1 }} />
+             <button
+               onClick={() => { setShowRatingModal(true); setShowFooterCTA(false); }}
+               style={{
+                 background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                 color: '#fff',
+                 border: 'none',
+                 borderRadius: 9999,
+                 padding: '6px 14px',
+                 fontSize: 13,
+                 fontWeight: 800,
+                 cursor: 'pointer',
+                 boxShadow: '0 6px 16px rgba(34,197,94,0.25)'
+               }}
+               aria-label={`Calificar ahora a ${receptorNombre}`}
+               title={`Calificar ahora a ${receptorNombre}`}
+             >
+               Calificar ahora
+             </button>
+             <button
+               onClick={() => setShowFooterCTA(false)}
+               aria-label="Cerrar aviso de calificación"
+               title="Cerrar"
+               style={{
+                 background: 'transparent',
+                 border: 'none',
+                 color: '#64748b',
+                 cursor: 'pointer',
+                 padding: 6,
+                 borderRadius: 6
+               }}
+             >
+               ✕
+             </button>
+           </div>
+         </div>
+       ),
+       document.body
+     )}
+
+      {/* Modal de calificación */}
+      {showRatingModal && (
+        <RatingModal
+          open={showRatingModal}
+          onClose={() => setShowRatingModal(false)}
+          onSubmit={submitRatingWithComment}
+          userName={receptorNombre}
+        />
+      )}
     </div>
-  );
+ );
 };
 
 export default React.memo(ChatBubble, (prevProps, nextProps) => {
@@ -847,5 +1020,5 @@ export default React.memo(ChatBubble, (prevProps, nextProps) => {
     prevProps.senderProfileImage === nextProps.senderProfileImage &&
     prevProps.currentUserProfileImage === nextProps.currentUserProfileImage &&
     prevProps.isFirstMessageInChat === nextProps.isFirstMessageInChat
-  );
+);
 });

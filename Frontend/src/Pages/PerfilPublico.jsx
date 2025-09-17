@@ -79,6 +79,16 @@ const PerfilPublico = () => {
     } else {
       console.error('❌ No se proporcionó ID de usuario');
     }
+
+    // Refrescar automáticamente cuando se emita una nueva calificación para este usuario
+    const onNewRating = (e) => {
+      const target = e?.detail?.userId;
+      if (target && String(target) === String(id)) {
+        cargarDatosUsuario();
+      }
+    };
+    window.addEventListener('calificacion:nueva', onNewRating);
+    return () => window.removeEventListener('calificacion:nueva', onNewRating);
   }, [id]);
 
   if (loading) {
@@ -173,8 +183,15 @@ const PerfilPublico = () => {
       <div className="perfil-stats-premium">
         {/* Tarjeta de Calificación (simple y consistente) */}
         <div className="stat-card-premium" style={{ '--delay': '0s' }} onClick={() => navigate(`/calificaciones/${id}`)} aria-label="Ver calificaciones" role="button">
+          <div className="stat-svg-icon stat-svg-star">
+            <svg width="28" height="28" viewBox="0 0 24 24">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="#FACC15" stroke="none"/>
+            </svg>
+          </div>
           <div className="stat-number-premium stat-number-rating">
-            {(usuario.promedioCalificaciones || usuario.calificacion || 0).toFixed(1)}
+            {Number.isFinite(Number(usuario?.promedioCalificaciones))
+              ? Number(usuario.promedioCalificaciones).toFixed(1)
+              : Number(usuario?.calificacion || 0).toFixed(1)}
           </div>
           <span className="stat-label-premium">Calificación</span>
         </div>
@@ -295,6 +312,58 @@ const PerfilPublico = () => {
             </div>
           </div>
         </section>
+
+        {/* Reseñas recientes */}
+        <section className="perfil-resenas-recientes" style={{ marginTop: '1.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <h3 className="estadisticas-titulo-premium" style={{ margin: 0 }}>Reseñas recientes</h3>
+            <button
+              onClick={() => navigate(`/calificaciones/${id}`)}
+              style={{
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: '#fff', border: 'none', borderRadius: 8, padding: '6px 10px',
+                fontSize: 12, fontWeight: 700, cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.12)'
+              }}
+            >
+              Ver todas
+            </button>
+          </div>
+          {Array.isArray(usuario.calificaciones) && usuario.calificaciones.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 12 }}>
+              {[...usuario.calificaciones].slice(-3).reverse().map((c, i) => (
+                <div key={`rev-${i}`} style={{
+                  background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: 12,
+                  padding: '10px 12px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontWeight: 700, color: '#0f172a' }}>{c.deNombre || 'Usuario'}</span>
+                      <span aria-label={`${c.rating} estrellas`} style={{ color: '#f59e0b', fontWeight: 700 }}>
+                        {'★'.repeat(Math.max(0, Math.min(5, Number(c.rating)||0)))}
+                        <span style={{ color: '#cbd5e1' }}>
+                          {'★'.repeat(Math.max(0, 5 - Math.max(0, Math.min(5, Number(c.rating)||0))))}
+                        </span>
+                      </span>
+                    </div>
+                    <span style={{ fontSize: 12, color: '#64748b' }}>{c.fecha ? new Date(c.fecha).toLocaleDateString() : '-'}</span>
+                  </div>
+                  {(c.productoOfrecido || c.productoSolicitado) && (
+                    <div style={{ marginTop: 6, fontSize: 13, color: '#334155' }}>
+                      {(c.productoOfrecido || '').trim()} {c.productoOfrecido && c.productoSolicitado ? '↔' : ''} {(c.productoSolicitado || '').trim()}
+                    </div>
+                  )}
+                  {(c.comentario || '').trim() ? (
+                    <div style={{ marginTop: 6, fontSize: 14, color: '#0f172a', whiteSpace: 'pre-line' }}>
+                      {String(c.comentario).length > 160 ? `${String(c.comentario).slice(0,160)}...` : c.comentario}
+                    </div>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p style={{ color: '#64748b', marginTop: 10 }}>Este usuario aún no tiene reseñas.</p>
+          )}
+        </section>
       </main>
       
       <Footer />
@@ -303,4 +372,3 @@ const PerfilPublico = () => {
 };
 
 export default PerfilPublico;
-

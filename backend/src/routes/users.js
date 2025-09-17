@@ -55,10 +55,29 @@ router.get('/:id', async (req, res) => {
     if (Array.isArray(user.transacciones)) {
       user.transacciones = user.transacciones.filter(t => !t.deleted);
     }
+
     // Calcular cantidad real de donaciones ENTREGADAS (status: 'delivered')
     const donacionesCount = await Donation.countDocuments({ donor: user._id, status: 'delivered' });
     const userObj = user.toObject();
     userObj.donacionesCount = donacionesCount;
+
+    // Calcular métricas de calificaciones
+    if (Array.isArray(userObj.calificaciones) && userObj.calificaciones.length > 0) {
+      const totalCalificaciones = userObj.calificaciones.length;
+      const sumRatings = userObj.calificaciones.reduce((acc, c) => acc + (Number(c.rating) || 0), 0);
+      const promedio = totalCalificaciones > 0 ? Math.round((sumRatings / totalCalificaciones) * 10) / 10 : 0;
+      userObj.promedioCalificaciones = promedio;
+      userObj.totalCalificaciones = totalCalificaciones;
+      // Mantener userObj.calificacion existente, pero si no existe o es inválida, rellenar con el promedio
+      if (userObj.calificacion === undefined || isNaN(Number(userObj.calificacion))) {
+        userObj.calificacion = promedio;
+      }
+    } else {
+      userObj.promedioCalificaciones = 0;
+      userObj.totalCalificaciones = 0;
+      if (userObj.calificacion === undefined) userObj.calificacion = 0;
+    }
+
     res.json(userObj);
   } catch (error) {
     res.status(500).json({ message: error.message });

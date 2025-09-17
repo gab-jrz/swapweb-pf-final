@@ -5841,48 +5841,38 @@ const PerfilUsuario = () => {
                                   </div>
                                 </div>
 
-                                {/* Banda de estado: solo cuando esté completado */}
-                                {completadoFinal && (
-                                  <div
-                                    className="stepper-status"
-                                    style={{ marginTop: 12 }}
-                                  >
-                                    <span className="stepper-status-pill">
-                                      Intercambio completado
-                                    </span>
-                                  </div>
-                                )}
 
                                 {/* CTA confirmar */}
-                                {!completadoFinal && !yoConfirmadoFinal && (
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      justifyContent: "center",
-                                      marginTop: 40,
-                                      marginBottom: 14,
-                                    }}
-                                  >
-                                    <button
-                                      onClick={() =>
-                                        handleConfirmExchange(anchor)
-                                      }
-                                      style={{
-                                        background:
-                                          "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
-                                        color: "#ffffff",
-                                        border: "none",
-                                        borderRadius: 12,
-                                        padding: "14px 26px",
-                                        fontWeight: 800,
-                                        boxShadow:
-                                          "0 6px 16px rgba(34,197,94,.35)",
-                                        cursor: "pointer",
-                                      }}
-                                    >
-                                      Confirmar intercambio
-                                    </button>
-                                  </div>
+                                {/* Info compacta debajo del Stepper (solo como ayuda visual, sin CTA de calificación) */}
+{completadoFinal && (
+  <div
+    style={{
+      marginTop: 8,
+      marginBottom: 8,
+      display: 'flex',
+      justifyContent: 'center'
+    }}
+  >
+    <div
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 8,
+        padding: '8px 12px',
+        borderRadius: 12,
+        background: 'linear-gradient(135deg, #ecfeff 0%, #f0fdf4 100%)',
+        border: '1px solid #bbf7d0',
+        color: '#065f46',
+        fontSize: 13,
+        fontWeight: 700,
+        boxShadow: '0 1px 6px rgba(0,0,0,0.06)'
+      }}
+      title="Ayuda: califica desde el mensaje automático de cierre"
+    >
+      <span role="img" aria-label="check">✅</span>
+      <span>Intercambio completado. Podés calificar desde el mensaje destacado en el chat.</span>
+       </div>
+       </div>
                                 )}
                               </div>
                             );

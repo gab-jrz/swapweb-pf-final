@@ -43,7 +43,8 @@ router.post('/', async (req, res) => {
 
     // Actualizar promedio
     const sum = receptor.calificaciones.reduce((acc, c) => acc + (c.rating || 0), 0);
-    receptor.calificacion = (sum / receptor.calificaciones.length).toFixed(1);
+    const avg = sum / receptor.calificaciones.length;
+    receptor.calificacion = Math.round(avg * 10) / 10;
 
     await receptor.save();
     

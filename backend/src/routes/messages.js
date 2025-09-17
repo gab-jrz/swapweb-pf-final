@@ -366,39 +366,76 @@ router.put('/:id', async (req, res) => {
 
 router.put('/:id/rating', async (req, res) => {
   try {
-    const { rating, raterId } = req.body;
+    const { rating, raterId, comentario, comment } = req.body;
     if(!rating || !raterId) return res.status(400).json({message:'rating y raterId requeridos'});
 
     const message = await Message.findById(req.params.id);
     if(!message) return res.status(404).json({message:'Mensaje no encontrado'});
-    message.rating = rating;
-    await message.save();
 
-    // guardar en historial del usuario receptor
+    // Solo pueden calificar los participantes del mensaje/intercambio
+    if (raterId !== message.deId && raterId !== message.paraId) {
+      return res.status(403).json({ message: 'No autorizado para calificar esta transacción' });
+    }
+
+    // Evitar calificar más de una vez por mensaje
+    if (typeof message.rating === 'number' && message.rating > 0) {
+      return res.status(400).json({ message: 'Ya existe una calificación para esta transacción' });
+    }
+
+    // guardar en historial del usuario receptor (evitar duplicados por transacción)
     const receptorId = message.deId === raterId ? message.paraId : message.deId;
     const raterUser = await User.findOne({ id: raterId });
     const receptor = await User.findOne({ id: receptorId });
+
     if(receptor){
       receptor.calificaciones = receptor.calificaciones || [];
+      const transId = String(message._id);
+      const yaCalificado = receptor.calificaciones.some(c => c.deId === raterId && String(c.transaccionId) === transId);
+      if (yaCalificado) {
+        return res.status(400).json({ message: 'Ya calificaste esta transacción' });
+      }
+
       // aceptar tanto "comentario" como "comment" desde el cliente
-      const comentario = (typeof req.body.comentario === 'string' && req.body.comentario.trim() !== '')
-        ? req.body.comentario.trim()
-        : (typeof req.body.comment === 'string' ? req.body.comment.trim() : '');
+      const comentarioFinal = (typeof comentario === 'string' && comentario.trim() !== '')
+        ? comentario.trim()
+        : (typeof comment === 'string' ? comment.trim() : '');
+
       receptor.calificaciones.push({
         deId: raterId,
         deNombre: `${raterUser?.nombre || ''} ${raterUser?.apellido || ''}`.trim(),
         rating,
-        comentario,
+        comentario: comentarioFinal,
         productoSolicitado: message.productoTitle,
-        productoOfrecido: message.productoOfrecido
+        productoOfrecido: message.productoOfrecido,
+        transaccionId: transId
       });
       // promedio
       const sum = receptor.calificaciones.reduce((acc,c)=>acc + (c.rating||0),0);
-      receptor.calificacion = (sum / receptor.calificaciones.length).toFixed(1);
+      const avg = sum / receptor.calificaciones.length;
+      receptor.calificacion = Math.round(avg * 10) / 10; // número con 1 decimal
       await receptor.save();
+
+      // Notificar nueva calificación al receptor (unificada con ratings.js)
+      try {
+        await NotificationService.notifyNewRating({
+          paraId: receptorId,
+          deId: raterId,
+          deNombre: `${raterUser?.nombre || ''} ${raterUser?.apellido || ''}`.trim(),
+          rating,
+          comentario: comentarioFinal,
+          productoOfrecido: message.productoOfrecido,
+          productoSolicitado: message.productoTitle
+        });
+      } catch (e) {
+        console.error('Error notificando calificación desde messages.js:', e);
+      }
     }
 
-    res.json({ ok:true });
+    // Persistir en el mensaje al final (evita doble escritura si hubo return antes)
+    message.rating = rating;
+    await message.save();
+
+    res.json({ ok:true, calificacion: receptor?.calificacion });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
