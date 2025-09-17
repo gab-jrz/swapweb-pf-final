@@ -4,6 +4,11 @@
 /* Footer Moderno */
 .footer-modern {
   position: relative;
+  width: 100vw;
+  left: 50%;
+  right: 0;
+  margin-left: -50vw;
+  margin-right: 0;
   /* Paleta del logo (violeta -> azul) más oscura */
   background: linear-gradient(135deg, #6d28d9 0%, #2563eb 100%);
   color: white;
@@ -442,4 +447,3 @@
 .mb-0 {
   margin-bottom: 0;
 }
-  
