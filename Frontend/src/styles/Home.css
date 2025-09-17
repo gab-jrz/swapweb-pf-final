@@ -17,9 +17,9 @@
   /* Contenedor de las tarjetas de productos */
   .product-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Grid responsivo, mínimo 300px */
-    gap: 32px; /* Espaciado generoso entre tarjetas */
-    justify-content: center;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 400px)); /* Máximo 400px por tarjeta */
+    gap: 32px;
+    justify-content: center; /* Centra las tarjetas si hay pocas */
     align-items: stretch;
     padding-left: 8px;
     padding-right: 8px;
